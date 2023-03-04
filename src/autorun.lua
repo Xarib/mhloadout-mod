@@ -76,7 +76,7 @@ local function map_ingame_loadout(loadout)
 
         -- Rest
         weapon = map_ingame_loadout_equipment(loadout, equip_types["Weapon"], loadout.getWeaponId),
-        weapon_kinsect = map_ingame_loadout_equipment(loadout, nil, loadout.getInsectId),
+        kinsect = map_ingame_loadout_equipment(loadout, nil, loadout.getInsectId),
         talisman = map_ingame_loadout_equipment(loadout, equip_types["Talisman"], loadout.getTalismanId),
         petalace = map_ingame_loadout_equipment(loadout, equip_types["LvBuffCage"], loadout.getLvBuffCageId)
     }
@@ -94,4 +94,6 @@ for i = 0, 111, 1 do
     end
 end
 
-log.debug(json.dump_string(mapped_loadouts, 2))
+local mapped_loadouts_json = json.dump_string(mapped_loadouts, 2)
+-- Call the plugin to send dumped json to the service
+mhl.upload(mapped_loadouts_json, function(json) log.debug(json) end)
