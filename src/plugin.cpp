@@ -16,18 +16,20 @@ void on_lua_state_created(lua_State* l) {
     reframework::API::LuaLock _{};
 
     g_lua = l;
-
     sol::state_view lua{ g_lua };
 
-    auto cmkrtestdeps = lua.create_table();
+    auto lua_object = lua.create_table();
+    lua_object["upload"] = [](const std::string &json, const std::function<void(std::string)> &callback) {
+        /*cpr::Post(
+            cpr::Url{ "" }, 
+            cpr::Header{{ "Content-Type", "application/json" }}, 
+            cpr::Body{ json }
+        );*/
 
-    cmkrtestdeps["callback"] = [](const std::function<void(std::string)>& lambda) {
-        cpr::Response r = cpr::Get(cpr::Url{ "https://raw.githubusercontent.com/praydog/REFramework/master/README.md" });
-
-        lambda(r.text);
+        callback(json);
     };
 
-    lua["mhl"] = cmkrtestdeps;
+    lua["mhl"] = lua_object;
 }
 
 void on_lua_state_destroyed(lua_State* l) {
@@ -36,7 +38,7 @@ void on_lua_state_destroyed(lua_State* l) {
     g_lua = nullptr;
 }
 
-extern "C" __declspec(dllexport) void reframework_plugin_required_version(REFrameworkPluginVersion * version) {
+extern "C" __declspec(dllexport) void reframework_plugin_required_version(REFrameworkPluginVersion *version) {
     version->major = REFRAMEWORK_PLUGIN_VERSION_MAJOR;
     version->minor = REFRAMEWORK_PLUGIN_VERSION_MINOR;
     version->patch = REFRAMEWORK_PLUGIN_VERSION_PATCH;
@@ -45,7 +47,7 @@ extern "C" __declspec(dllexport) void reframework_plugin_required_version(REFram
     version->game_name = "MHRISE";
 }
 
-extern "C" __declspec(dllexport) bool reframework_plugin_initialize(const REFrameworkPluginInitializeParam * param) {
+extern "C" __declspec(dllexport) bool reframework_plugin_initialize(const REFrameworkPluginInitializeParam *param) {
     reframework::API::initialize(param);
 
     const auto functions = param->functions;
